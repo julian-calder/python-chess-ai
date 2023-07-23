@@ -1,2 +1,6 @@
 # python-chess-ai
-First attempt at teaching myself how to play chess well, by teaching an AI to play using Python.
+Attempt at creating a chess AI in python, following the excellent youtube series by Eddie Sharick (https://www.youtube.com/watch?v=EnYui0e73Rs)
+
+## Dependencies:
+pip3 install pygame
+pip3 install numpy (not currently needed but in the future)
