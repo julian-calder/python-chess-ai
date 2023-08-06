@@ -4,6 +4,7 @@ This is the main driver file, for user input and GameState object
 
 import pygame as p  
 import ChessEngine
+import AIMoveFinder
 
 p.init()
 
@@ -46,15 +47,21 @@ def main():
     playerClicks = [] #keep track of player clicks (two tuples: [(6,4), (4,4)])
     
     gameOver = False #flag for whenever 
+
+    #could pit two AIs against each other by setting these both to False
+    playerOne = True #if human is playing white, then this will be true. If AI is playing, false
+    playerTwo = False #Same as above but for black
     
     while running:
+        isHumanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
+
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
 
             #mouse handler
-            elif e.type == p.MOUSEBUTTONDOWN: #could add click and drag later
-                if not gameOver:
+            elif e.type == p.MOUSEBUTTONDOWN: 
+                if not gameOver and isHumanTurn: #if is humans turn, let them interact with board
                     location = p.mouse.get_pos() #(x, y) location of mouse
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -94,6 +101,15 @@ def main():
                     moveMade = False
                     animate = False
                     gameOver = False
+
+        #AI move finder
+        if not gameOver and not isHumanTurn:
+            AIMove = AIMoveFinder.findBestMove(gs, validMoves)
+            if AIMove is None:
+                AIMove = AIMoveFinder.findRandomMove(validMoves)
+            gs.makeMove(AIMove)
+            moveMade = True
+            animate = True
 
         if moveMade:
             if animate:

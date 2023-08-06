@@ -547,7 +547,7 @@ class GameState():
                 inCheck, pins, checks = self.checkForPinsAndChecks()
                 if not inCheck:
                     self.blackKingLocation = (row, col - 2)
-                    inCheck, pins, checks = self.checkForPinsAndChecks
+                    inCheck, pins, checks = self.checkForPinsAndChecks()
                     if not inCheck:
                         moves.append(Move((row, col), (row, col - 2), self.board, isCastleMove=True))
 
