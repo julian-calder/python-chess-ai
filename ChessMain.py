@@ -49,7 +49,7 @@ def main():
     gameOver = False #flag for whenever 
 
     #could pit two AIs against each other by setting these both to False
-    playerOne = True #if human is playing white, then this will be true. If AI is playing, false
+    playerOne = False #if human is playing white, then this will be true. If AI is playing, false
     playerTwo = False #Same as above but for black
     
     while running:
@@ -93,6 +93,7 @@ def main():
                     gs.undoMove()
                     moveMade = True
                     animate = False
+                    gameOver = False
                 if e.key == p.K_r: #reset the board when 'r' is pressed
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
@@ -104,7 +105,8 @@ def main():
 
         #AI move finder
         if not gameOver and not isHumanTurn:
-            AIMove = AIMoveFinder.findBestMove(gs, validMoves)
+            #AIMove = AIMoveFinder.findBestMove(gs, validMoves)
+            AIMove = AIMoveFinder.findBestMoveMinMax(gs, validMoves)
             if AIMove is None:
                 AIMove = AIMoveFinder.findRandomMove(validMoves)
             gs.makeMove(AIMove)
