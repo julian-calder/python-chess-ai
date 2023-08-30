@@ -46,7 +46,7 @@ def main():
     sqSelected = () #no square is selected initially. Will keep track of last click of user. Type (row, column)
     playerClicks = [] #keep track of player clicks (two tuples: [(6,4), (4,4)])
     
-    gameOver = False #flag for whenever 
+    gameOver = False #flag for whenever game is done
 
     #could pit two AIs against each other by setting these both to False
     playerOne = False #if human is playing white, then this will be true. If AI is playing, false
@@ -106,7 +106,7 @@ def main():
         #AI move finder
         if not gameOver and not isHumanTurn:
             #AIMove = AIMoveFinder.findBestMove(gs, validMoves)
-            AIMove = AIMoveFinder.findBestMoveMinMax(gs, validMoves)
+            AIMove = AIMoveFinder.findBestMoveRecursive(gs, validMoves)
             if AIMove is None:
                 AIMove = AIMoveFinder.findRandomMove(validMoves)
             gs.makeMove(AIMove)

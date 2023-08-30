@@ -5,7 +5,7 @@ import random
 pieceScore = {'K': 0, "Q": 10, "R": 5, "B": 3, "N": 3, "p": 1}
 CHECKMATE = 1000
 STALEMATE = 0
-DEPTH = 2
+DEPTH = 3
 
 def findRandomMove(validMoves):
     '''
@@ -19,23 +19,23 @@ def findBestMove(gs, validMoves):
     '''
     turnMultiplier = 1 if gs.whiteToMove else -1
 
-    opponentMinMaxScore = CHECKMATE #want to find the smallest score of opponents maximum
+    opponentMinMaxScore = CHECKMATE  #want to find the smallest score of opponents maximum
     bestPlayerMove = None
     random.shuffle(validMoves)
 
 
-    for playerMove in validMoves: #tries to make best move based on maximizing total number of points on board
+    for playerMove in validMoves:  #tries to make best move based on maximizing total number of points on board
         gs.makeMove(playerMove)
         opponentsMoves = gs.getValidMoves()
         if gs.stalemate:
             opponentMaxScore = STALEMATE
-        elif gs.checkmate: 
+        elif gs.checkmate:
             opponentMaxScore = -CHECKMATE
         else:
-            opponentMaxScore = -CHECKMATE #find opponents best move in the state I give them
+            opponentMaxScore = -CHECKMATE  #find opponents best move in the state I give them
             for opponentMove in opponentsMoves:
                 gs.makeMove(opponentMove)
-                gs.getValidMoves() #this is inefficient but necessary for the subsequent steps
+                gs.getValidMoves()  #this is inefficient but necessary for the subsequent steps
                 if gs.checkmate:
                     score = CHECKMATE
                 elif gs.stalemate:
@@ -54,12 +54,16 @@ def findBestMove(gs, validMoves):
 
     return bestPlayerMove
 
-def findBestMoveMinMax(gs, validMoves):
+def findBestMoveRecursive(gs, validMoves):
     '''
     Helper method to make first recursive call
     '''
     global nextMove
-    findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
+    nextMove = None
+    random.shuffle(validMoves)
+    #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1)
+    #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
+    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
     return nextMove
 
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
@@ -69,8 +73,6 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
     global nextMove
     if depth == 0: #at the deepest you want to go
         return scoreMaterial(gs.board)
-    
-    random.shuffle(validMoves)
 
     if whiteToMove: # trying to maximize
         maxScore = -CHECKMATE
@@ -98,8 +100,46 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
             gs.undoMove()
         return minScore
 
-    
 
+def findMoveNegaMax(gs, validMoves, depth, turnMultiplier):
+    global nextMove
+    if depth == 0:
+        return turnMultiplier * scoreBoard(gs)
+
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMax(gs, nextMoves, depth - 1, -turnMultiplier)
+        if score > maxScore:
+            maxScore = score
+            if depth == DEPTH:
+                nextMove = move
+        gs.undoMove()
+    return maxScore
+
+
+def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultiplier):
+    global nextMove
+    if depth == 0:
+        return turnMultiplier * scoreBoard(gs)
+    
+    #move ordering - implement later
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha, -turnMultiplier)
+        if score > maxScore:
+            maxScore = score
+            if depth == DEPTH:
+                nextMove = move
+        gs.undoMove()
+        if maxScore > alpha: #pruning happens
+            alpha = maxScore
+        if alpha >= beta:
+            break
+    return maxScore
 
 def scoreBoard(gs):
     '''
@@ -116,7 +156,7 @@ def scoreBoard(gs):
 
 
     score = 0
-    for row in board:
+    for row in gs.board:
         for square in row:
             if square[0] == 'w':
                 score += pieceScore[square[1]]
